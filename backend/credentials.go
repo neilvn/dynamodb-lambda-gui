@@ -8,7 +8,7 @@ import (
 )
 
 func (a *App) GetValue(line int, filename string) string {
-	path := fmt.Sprintf("/Users/nevinod/.aws/%s", filename)
+	path := fmt.Sprintf("", filename)
 
 	readFile, err := os.Open(path)
 
