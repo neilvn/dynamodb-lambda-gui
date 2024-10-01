@@ -32,8 +32,6 @@ func (a *App) ListTables() ([]string, error) {
 					fmt.Println(aerr.Error())
 				}
 			} else {
-				// Print the error, cast err to awserr.Error to get the Code and
-				// Message from an error.
 				fmt.Println(err.Error())
 			}
 			return []string{}, err

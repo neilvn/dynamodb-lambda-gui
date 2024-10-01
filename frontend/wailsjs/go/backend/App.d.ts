@@ -3,6 +3,4 @@
 
 export function FetchURL(arg1:string):Promise<string>;
 
-export function GetValue(arg1:number,arg2:string):Promise<string>;
-
 export function ListTables():Promise<Array<string>>;

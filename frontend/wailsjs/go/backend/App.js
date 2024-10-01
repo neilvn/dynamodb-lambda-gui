@@ -6,10 +6,6 @@ export function FetchURL(arg1) {
   return window['go']['backend']['App']['FetchURL'](arg1);
 }
 
-export function GetValue(arg1, arg2) {
-  return window['go']['backend']['App']['GetValue'](arg1, arg2);
-}
-
 export function ListTables() {
   return window['go']['backend']['App']['ListTables']();
 }
