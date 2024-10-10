@@ -7,7 +7,7 @@
 
 <TailwindCss/>
 
-<main>
+<main class="w-fit">
   <div class="flex flex-col h-screen">
     <div role="tablist" class="tabs tabs-lifted mb-1" data-theme="nord">
       <div role="tab" class="tab tab-active">Tables</div>

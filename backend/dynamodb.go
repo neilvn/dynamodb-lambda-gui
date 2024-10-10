@@ -1,8 +1,13 @@
 package backend
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	dynamodb2 "github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -10,14 +15,12 @@ import (
 
 func (a *App) ListTables() ([]string, error) {
 	tables := []string{}
-
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
-
 	input := &dynamodb.ListTablesInput{}
 
 	for {
@@ -37,19 +40,50 @@ func (a *App) ListTables() ([]string, error) {
 			return []string{}, err
 		}
 
+		// Append table names to our slice
 		for _, n := range result.TableNames {
 			tables = append(tables, *n)
 		}
 
-		// assign the last read tablename as the start for our next call to the ListTables function
-		// the maximum number of table names returned in a call is 100 (default), which requires us to make
-		// multiple calls to the ListTables function to retrieve all table names
-		input.ExclusiveStartTableName = result.LastEvaluatedTableName
-
+		// If LastEvaluatedTableName is nil, we've retrieved all tables
 		if result.LastEvaluatedTableName == nil {
 			break
 		}
+
+		// Set the ExclusiveStartTableName for the next iteration
+		input.ExclusiveStartTableName = result.LastEvaluatedTableName
 	}
 
 	return tables, nil
+}
+
+func (a *App) ScanTable(tableName string) ([]map[string]interface{}, error) {
+	// Load the AWS SDK configuration
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		return nil, fmt.Errorf("failed to load configuration: %v", err)
+	}
+
+	// Create a DynamoDB client
+	client := dynamodb2.NewFromConfig(cfg)
+
+	// Prepare the scan input
+	input := &dynamodb2.ScanInput{
+		TableName: aws.String(tableName),
+	}
+
+	// Perform the scan operation
+	result, err := client.Scan(context.TODO(), input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan table: %v", err)
+	}
+
+	// Convert the result to []map[string]interface{}
+	var items []map[string]interface{}
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &items)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal items: %v", err)
+	}
+
+	return items, nil
 }

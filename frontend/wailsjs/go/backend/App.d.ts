@@ -4,3 +4,5 @@
 export function FetchURL(arg1:string):Promise<string>;
 
 export function ListTables():Promise<Array<string>>;
+
+export function ScanTable(arg1:string):Promise<Array<{[key: string]: any}>>;
